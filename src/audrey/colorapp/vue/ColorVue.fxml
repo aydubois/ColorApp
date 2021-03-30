@@ -27,8 +27,8 @@
             <Font name="Helvetica" size="16.0" />
          </font>
       </Label>
-      <TextField fx:id="textFieldRed" layoutX="180.0" layoutY="71.0" prefHeight="20.0" prefWidth="50.0"  />
-      <TextField fx:id="textFieldGreen" layoutX="180.0" layoutY="137.0" prefHeight="20.0" prefWidth="50.0"  />
+      <TextField fx:id="textFieldRed" layoutX="180.0" layoutY="71.0" prefHeight="20.0" prefWidth="50.0" />
+      <TextField fx:id="textFieldGreen" layoutX="180.0" layoutY="137.0" prefHeight="20.0" prefWidth="50.0" />
       <TextField fx:id="textFieldBlue" layoutX="180.0" layoutY="204.0" prefHeight="20.0" prefWidth="50.0" />
       <TextField fx:id="textFieldHex" layoutX="248.0" layoutY="71.0" prefHeight="25.0" prefWidth="128.0" />
       <Label layoutX="248.0" layoutY="48.0" text="Hex">
@@ -36,6 +36,7 @@
             <Font name="Helvetica" size="16.0" />
          </font>
       </Label>
-      <Pane fx:id="paneColor" layoutX="248.0" layoutY="118.0" prefHeight="128.0" prefWidth="128.0" style="-fx-border-color: grey;" />
+      <Pane fx:id="paneColor" layoutX="32.0" layoutY="242.0" prefHeight="47.0" prefWidth="353.0" style="-fx-border-color: grey;" />
+      <Pane fx:id="paneMultiColor" layoutX="247.0" layoutY="104.0" prefHeight="125.0" prefWidth="125.0" style="-fx-border-color: grey;" />
    </children>
 </AnchorPane>

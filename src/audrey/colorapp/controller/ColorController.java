@@ -5,9 +5,12 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 
+import java.awt.*;
+import java.awt.event.MouseEvent;
 import java.net.URL;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -31,19 +34,26 @@ public class ColorController implements Initializable {
     private TextField textFieldHex;
     @FXML
     private Pane paneColor;
+    @FXML
+    private Pane paneMultiColor;
 
     private  TextField[]  textFields  ;
     private  Slider[]  sliders  ;
     private  String[] colors;
+
     private final Border borderRed = new Border(new BorderStroke(Paint.valueOf("#FF0000"),
             BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT));
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // Creation de tableaux des différents éléments => simplification
         this.textFields = new TextField[]{textFieldRed, textFieldGreen, textFieldBlue};
         this.sliders = new Slider[]{sliderRed, sliderGreen, sliderBlue};
         this.colors = new String[]{"red", "green", "blue"};
-
+        // Init paneMultiColor
+        this.paneMultiColor.setBackground(new Background(new BackgroundImage(new Image("audrey/colorapp/image/colorPicker.png",125,125,false,true),
+                BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
+                BackgroundSize.DEFAULT)));
         //Init couleur
         try{
             this.color = new Color(255,255,255);
@@ -62,7 +72,28 @@ public class ColorController implements Initializable {
         this.addEventsRGB();
         this.addEventInputHex();
         this.addEventSliders();
+        this.addEventMultiPane();
 
+    }
+
+    private void addEventMultiPane(){
+        this.paneMultiColor.setOnMouseClicked(MouseEvent->{
+            System.out.println(MouseEvent.getSource());
+
+            try{
+                Robot robot = new Robot();
+                Point mousepoint = MouseInfo.getPointerInfo().getLocation();
+                java.awt.Color pixel = robot.getPixelColor(mousepoint.x, mousepoint.y);
+                this.color.setRed(pixel.getRed());
+                this.color.setGreen(pixel.getGreen());
+                this.color.setBlue(pixel.getBlue());
+                updateTextFieldFromColor();
+                updateSliderFromColor();
+                updatePane();
+            }catch (AWTException e ){
+                System.out.println("Oops Robot doesn't work");
+            }
+        });
     }
     private void updateTextFieldFromColor(){
         this.textFieldRed.setText(String.valueOf(this.color.getRed()));
@@ -135,71 +166,27 @@ public class ColorController implements Initializable {
                 }
 
                 // Update all other elements
+                textFields[i].setBorder(null); // suppression du border rouge
                 if(fromText){
-                    textFields[i].setBorder(null); // suppression du border rouge
                     this.updateSliderFromColor();
                 }
                 this.textFieldHex.setText(this.color.getHexValue());
                 this.updatePane();
 
             }catch(IllegalArgumentException e){
-                if(!fromText){
+                if(fromText){
                     this.textFields[i].setBorder(this.borderRed);
                 }
             }
         }
     }
     private void addEventSliders(){
-        for (int i = 0; i < sliders.length; i++) {
-            int finalI = i;
-            sliders[i].setOnMouseDragged(mouseEvent -> {
-                int value = (int)Math.round(sliders[finalI].getValue());
-                updateColorFromTextFieldOrSlider(false);
-                //this.changeColorValue(value,null, colors[finalI]);
-            });
-            sliders[i].setOnMouseClicked(mouseEvent -> {
-                int value = (int)Math.round(sliders[finalI].getValue());
-                updateColorFromTextFieldOrSlider(false);
-//                this.changeColorValue(value,null, colors[finalI]);
-            });
+        for (Slider slider : sliders) {
+            slider.setOnMouseDragged(mouseEvent -> updateColorFromTextFieldOrSlider(false));
+            slider.setOnMouseClicked(mouseEvent -> updateColorFromTextFieldOrSlider(false));
         }
     }
-   /* private void changeColorValue(int value,TextField textField, String color){
-        try{
 
-            switch (color){
-                case "red":
-                    this.color.setRed(value);
-                    if(textField == null)
-                        this.textFieldRed.setText(String.valueOf(value));
-                    break;
-                case "green":
-                    this.color.setGreen(value);
-                    if(textField == null)
-                        this.textFieldGreen.setText(String.valueOf(value));
-                    break;
-                case "blue":
-                    this.color.setBlue(value);
-                    if(textField == null)
-                        this.textFieldBlue.setText(String.valueOf(value));
-                    break;
-                default:
-                    break;
-            }
-
-            this.updateSliderFromColor();
-            if(textField != null){
-                textField.setBorder(null);
-            }
-            this.textFieldHex.setText(this.color.getHexValue());
-            this.updatePane();
-        }catch(IllegalArgumentException e){
-            if(textField != null){
-                textField.setBorder(new Border(new BorderStroke(Paint.valueOf("#FF0000"), //RED
-                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-            }
-        }
-    }*/
     private void addEventInputHex(){
         this.textFieldHex.setOnKeyPressed(keyEvent -> {
             try{
@@ -208,9 +195,6 @@ public class ColorController implements Initializable {
                 this.updateSliderFromColor();
                 this.updateTextFieldFromColor();
 
-                /*this.changeColorValue(this.color.getRed(), null, "red");
-                this.changeColorValue(this.color.getGreen(), null, "green");
-                this.changeColorValue(this.color.getBlue(), null, "blue");*/
             }catch(IllegalArgumentException e ){
                 this.textFieldHex.setBorder(borderRed);
             }
