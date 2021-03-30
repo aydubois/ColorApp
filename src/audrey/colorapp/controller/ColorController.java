@@ -6,6 +6,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 
@@ -36,6 +37,8 @@ public class ColorController implements Initializable {
     private Pane paneColor;
     @FXML
     private Pane paneMultiColor;
+    @FXML
+    private ImageView multiColor;
 
     private  TextField[]  textFields  ;
     private  Slider[]  sliders  ;
@@ -50,10 +53,6 @@ public class ColorController implements Initializable {
         this.textFields = new TextField[]{textFieldRed, textFieldGreen, textFieldBlue};
         this.sliders = new Slider[]{sliderRed, sliderGreen, sliderBlue};
         this.colors = new String[]{"red", "green", "blue"};
-        // Init paneMultiColor
-        this.paneMultiColor.setBackground(new Background(new BackgroundImage(new Image("audrey/colorapp/image/colorPicker.png",125,125,false,true),
-                BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
-                BackgroundSize.DEFAULT)));
         //Init couleur
         try{
             this.color = new Color(255,255,255);
@@ -78,21 +77,18 @@ public class ColorController implements Initializable {
 
     private void addEventMultiPane(){
         this.paneMultiColor.setOnMouseClicked(MouseEvent->{
-            System.out.println(MouseEvent.getSource());
-
             try{
-                Robot robot = new Robot();
-                Point mousepoint = MouseInfo.getPointerInfo().getLocation();
-                java.awt.Color pixel = robot.getPixelColor(mousepoint.x, mousepoint.y);
-                this.color.setRed(pixel.getRed());
-                this.color.setGreen(pixel.getGreen());
-                this.color.setBlue(pixel.getBlue());
+                javafx.scene.paint.Color pixel = multiColor.getImage()
+                        .getPixelReader().getColor((int)Math.round(MouseEvent.getX()),(int)Math.round(MouseEvent.getY()));
+                this.color.setRed((int)Math.round(pixel.getRed()*255));
+                this.color.setGreen((int)Math.round(pixel.getGreen()*255));
+                this.color.setBlue((int)Math.round(pixel.getBlue()*255));
+                }catch(Exception e ){
+                    System.out.println("ERRor ====>  "+e.getMessage());
+                }
                 updateTextFieldFromColor();
                 updateSliderFromColor();
                 updatePane();
-            }catch (AWTException e ){
-                System.out.println("Oops Robot doesn't work");
-            }
         });
     }
     private void updateTextFieldFromColor(){

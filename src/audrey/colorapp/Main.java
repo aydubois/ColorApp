@@ -12,7 +12,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("vue/ColorVue.fxml"));
         primaryStage.setTitle("Hello World");
-        primaryStage.setScene(new Scene(root, 450, 320));
+        primaryStage.setScene(new Scene(root, 680, 374));
         primaryStage.show();
     }
 
