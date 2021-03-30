@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="297.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="audrey.colorapp.controller.ColorController">
+   <children>
+      <Slider fx:id="sliderRed" blockIncrement="1.0" layoutX="32.0" layoutY="76.0" majorTickUnit="10.0" max="255.0" minorTickCount="1" />
+      <Slider fx:id="sliderGreen" blockIncrement="1.0" layoutX="32.0" layoutY="142.0" max="255.0" />
+      <Slider fx:id="sliderBlue" blockIncrement="1.0" layoutX="32.0" layoutY="209.0" max="255.0" />
+      <Label layoutX="32.0" layoutY="48.0" text="Red">
+         <font>
+            <Font name="Helvetica" size="16.0" />
+         </font>
+      </Label>
+      <Label layoutX="32.0" layoutY="112.0" text="Green">
+         <font>
+            <Font name="Helvetica" size="16.0" />
+         </font>
+      </Label>
+      <Label layoutX="32.0" layoutY="182.0" text="Blue">
+         <font>
+            <Font name="Helvetica" size="16.0" />
+         </font>
+      </Label>
+      <TextField fx:id="textFieldRed" layoutX="180.0" layoutY="71.0" prefHeight="20.0" prefWidth="50.0"  />
+      <TextField fx:id="textFieldGreen" layoutX="180.0" layoutY="137.0" prefHeight="20.0" prefWidth="50.0"  />
+      <TextField fx:id="textFieldBlue" layoutX="180.0" layoutY="204.0" prefHeight="20.0" prefWidth="50.0" />
+      <TextField fx:id="textFieldHex" layoutX="248.0" layoutY="71.0" prefHeight="25.0" prefWidth="128.0" />
+      <Label layoutX="248.0" layoutY="48.0" text="Hex">
+         <font>
+            <Font name="Helvetica" size="16.0" />
+         </font>
+      </Label>
+      <Pane fx:id="paneColor" layoutX="248.0" layoutY="118.0" prefHeight="128.0" prefWidth="128.0" style="-fx-border-color: grey;" />
+   </children>
+</AnchorPane>
