@@ -8,7 +8,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 
-import java.awt.event.MouseEvent;
 import java.net.URL;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -33,85 +32,139 @@ public class ColorController implements Initializable {
     @FXML
     private Pane paneColor;
 
-
+    private  TextField[]  textFields  ;
+    private  Slider[]  sliders  ;
+    private  String[] colors;
+    private final Border borderRed = new Border(new BorderStroke(Paint.valueOf("#FF0000"),
+            BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT));
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        //Instanciation de la couleur
+        // Creation de tableaux des différents éléments => simplification
+        this.textFields = new TextField[]{textFieldRed, textFieldGreen, textFieldBlue};
+        this.sliders = new Slider[]{sliderRed, sliderGreen, sliderBlue};
+        this.colors = new String[]{"red", "green", "blue"};
+
+        //Init couleur
         try{
             this.color = new Color(255,255,255);
         }catch(IllegalArgumentException e){
-            System.out.println("Error ====> "+ e.getMessage());
+            System.err.println("Error ====> "+ e.getMessage());
         }
-        // Initialisation de tous les input à 0
+
+        // Init TextFields
+        this.updateTextFieldFromColor();
+        //Initialisation des sliders
+        this.initSliders();
+        //Mise à jour du panneau coloré
+        this.updatePane();
+
+        //Ajout des  != events TextFields + Sliders
+        this.addEventsRGB();
+        this.addEventInputHex();
+        this.addEventSliders();
+
+    }
+    private void updateTextFieldFromColor(){
         this.textFieldRed.setText(String.valueOf(this.color.getRed()));
         this.textFieldGreen.setText(String.valueOf(this.color.getGreen()));
         this.textFieldBlue.setText(String.valueOf(this.color.getBlue()));
         this.textFieldHex.setText(this.color.getHexValue());
-        //Mise à jour du panneau coloré
-        this.paneColor.setBackground(new Background(new BackgroundFill(Paint.valueOf(this.color.getHexValue()), null, null)));
-        //Initialisation des sliders
-        this.initSliders(this.sliderRed);
-        this.initSliders(this.sliderGreen);
-        this.initSliders(this.sliderBlue);
-        //Ajustement de la barre
-        this.adjustValueSliders();
-
-        //Ajout des events sur les inputs RGB
-        this.addEventInputRGB(this.textFieldRed, "red");
-        this.addEventInputRGB(this.textFieldGreen, "green");
-        this.addEventInputRGB(this.textFieldBlue, "blue");
-
-        //Ajout de l'event sur l'input Hex
-        this.addEventInputHex();
-
-        //Ajout de l'event sur les sliders
-        this.addEventSliders(this.sliderRed, "red");
-        this.addEventSliders(this.sliderGreen, "green");
-        this.addEventSliders(this.sliderBlue, "blue");
-
     }
-    private void initSliders(Slider slider){
-        slider.setMin(0);
-        slider.setMax(255);
+    private void initSliders(){
+        for (Slider slider : sliders) {
+            slider.setMin(0);
+            slider.setMax(255);
+        }
+        this.updateSliderFromColor();
     }
 
-    private void adjustValueSliders() {
+    private void updateSliderFromColor() {
         this.sliderRed.setValue(this.color.getRed());
         this.sliderGreen.setValue(this.color.getGreen());
         this.sliderBlue.setValue(this.color.getBlue());
     }
 
-    private void addEventInputRGB(TextField textField, String color){
-        textField.setOnKeyPressed(keyEvent -> {
-            // Suppression des caractères non voulus
-            String charactersTextField = textField.getText();
-            if (!charactersTextField.matches("\\d*")) {
-                charactersTextField = charactersTextField.replaceAll("[^\\d]", "");
-                textField.setText(charactersTextField);
-            }
-            int value = 0;
-            try {
-                value = Integer.parseInt(charactersTextField);
+
+    private void addEventsRGB(){
+        for (int i = 0; i < textFields.length; i++) {
+            int finalI = i;
+            textFields[i].setOnKeyPressed(keyEvent -> {
+
+                // Suppr des caractères non voulus
+                String charactersTextField = textFields[finalI].getText();
+                if (!charactersTextField.matches("\\d*")) {
+                    charactersTextField = charactersTextField.replaceAll("[^\\d]", "");
+                    textFields[finalI].setText(charactersTextField);
+                }
+
+                this.updateColorFromTextFieldOrSlider(true);
+            });
+        }
+    }
+
+    private void updateColorFromTextFieldOrSlider(Boolean fromText){
+        int value;
+        for (int i = 0; i < textFields.length; i++) {
+            //Get value
+            try{
+                value = fromText ? Integer.parseInt(textFields[i].getText()) : (int)Math.round(sliders[i].getValue());
             }catch (NumberFormatException e){
                 value = 0;
             }
-            this.changeColorValue(value,textField, color);
-        });
-    }
 
-    private void addEventSliders(Slider slider, String color){
-        slider.setOnMouseDragged(mouseEvent -> {
-            int value = (int)Math.round(slider.getValue());
-            System.out.println("VALUE SLIDER ===>"+slider.getValue());
-            this.changeColorValue(value,null, color);
-        });
-        slider.setOnMouseClicked(mouseEvent -> {
-            int value = (int)Math.round(slider.getValue());
-            System.out.println("VALUE SLIDER ===>"+slider.getValue());
-            this.changeColorValue(value,null, color);
-        });
+            //Set value
+            try{
+                switch (colors[i]){
+                    case "red":
+                        this.color.setRed(value);
+                        if(!fromText)
+                            this.textFieldRed.setText(String.valueOf(value));
+                        break;
+                    case "green":
+                        this.color.setGreen(value);
+                        if(!fromText)
+                            this.textFieldGreen.setText(String.valueOf(value));
+                        break;
+                    case "blue":
+                        this.color.setBlue(value);
+                        if(!fromText)
+                            this.textFieldBlue.setText(String.valueOf(value));
+                        break;
+                    default:
+                        break;
+                }
+
+                // Update all other elements
+                if(fromText){
+                    textFields[i].setBorder(null); // suppression du border rouge
+                    this.updateSliderFromColor();
+                }
+                this.textFieldHex.setText(this.color.getHexValue());
+                this.updatePane();
+
+            }catch(IllegalArgumentException e){
+                if(!fromText){
+                    this.textFields[i].setBorder(this.borderRed);
+                }
+            }
+        }
     }
-    private void changeColorValue(int value,TextField textField, String color){
+    private void addEventSliders(){
+        for (int i = 0; i < sliders.length; i++) {
+            int finalI = i;
+            sliders[i].setOnMouseDragged(mouseEvent -> {
+                int value = (int)Math.round(sliders[finalI].getValue());
+                updateColorFromTextFieldOrSlider(false);
+                //this.changeColorValue(value,null, colors[finalI]);
+            });
+            sliders[i].setOnMouseClicked(mouseEvent -> {
+                int value = (int)Math.round(sliders[finalI].getValue());
+                updateColorFromTextFieldOrSlider(false);
+//                this.changeColorValue(value,null, colors[finalI]);
+            });
+        }
+    }
+   /* private void changeColorValue(int value,TextField textField, String color){
         try{
 
             switch (color){
@@ -134,32 +187,38 @@ public class ColorController implements Initializable {
                     break;
             }
 
-            this.adjustValueSliders();
+            this.updateSliderFromColor();
             if(textField != null){
                 textField.setBorder(null);
             }
             this.textFieldHex.setText(this.color.getHexValue());
-            this.paneColor.setBackground(new Background(new BackgroundFill(Paint.valueOf(this.color.getHexValue()), null, null)));
+            this.updatePane();
         }catch(IllegalArgumentException e){
             if(textField != null){
                 textField.setBorder(new Border(new BorderStroke(Paint.valueOf("#FF0000"), //RED
                     BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
             }
         }
-    }
+    }*/
     private void addEventInputHex(){
         this.textFieldHex.setOnKeyPressed(keyEvent -> {
             try{
                 this.color.setHexValue(this.textFieldHex.getText().toUpperCase(Locale.ROOT));
                 this.textFieldHex.setBorder(null);
-                this.adjustValueSliders();
-                this.changeColorValue(this.color.getRed(), null, "red");
+                this.updateSliderFromColor();
+                this.updateTextFieldFromColor();
+
+                /*this.changeColorValue(this.color.getRed(), null, "red");
                 this.changeColorValue(this.color.getGreen(), null, "green");
-                this.changeColorValue(this.color.getBlue(), null, "blue");
+                this.changeColorValue(this.color.getBlue(), null, "blue");*/
             }catch(IllegalArgumentException e ){
-                this.textFieldHex.setBorder(new Border(new BorderStroke(Paint.valueOf("#FF0000"), //RED
-                        BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+                this.textFieldHex.setBorder(borderRed);
             }
         });
+    }
+
+
+    private void updatePane(){
+        this.paneColor.setBackground(new Background(new BackgroundFill(Paint.valueOf(this.color.getHexValue()), null, null)));
     }
 }
